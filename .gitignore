@@ -1,2 +1,4 @@
-client/venv/
-server/venv/
+venv/
+
+client/.idea/
+server/.idea

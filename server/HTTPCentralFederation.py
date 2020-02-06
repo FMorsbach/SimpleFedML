@@ -3,6 +3,8 @@ from CentralFederation import Federation
 from Model import KerasModel
 import json
 
+# TODO Decouple HTTP server from federation
+
 app = Flask(__name__)
 fed = Federation(KerasModel())
 
