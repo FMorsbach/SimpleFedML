@@ -1,6 +1,8 @@
 from flask import Flask, Response, request
 from CentralFederation import Federation
 from Model import KerasModel
+from multiprocessing import Process
+
 import json
 
 # TODO Decouple HTTP server from federation
@@ -24,3 +26,6 @@ def update():
 if __name__ == '__main__':
     fed.start()
     app.run()
+    fed.stop()
+
+

@@ -1,8 +1,10 @@
+import sys
 import threading
 import time
 
 SLEEP_TIME = 1
-UPDATES_PER_ROUND = 2
+UPDATES_PER_ROUND = 3
+ROUNDS = 3
 
 # TODO Proper logging
 
@@ -14,6 +16,7 @@ class Federation:
         self.running = False
         self.model = model
         self.updates = []
+        self.round = 0
 
     def start(self):
         self.running = True
@@ -31,11 +34,22 @@ class Federation:
 
                 evaluation = self.model.evaluate()
                 print(evaluation)
+
+                self.round = self.round + 1
+
+                if self.round >= ROUNDS:
+                    self.running = False
+                    self.model.writeToDisk()
+                    print("Finished training, you can safely shutdown the process now...")
+
             else:
                 print(str(len(self.updates)), "/", str(UPDATES_PER_ROUND), " - Waiting for more trainings")
 
     def stop(self):
         self.running = False
+        self.t1.join()
+
+    def join(self):
         self.t1.join()
 
     def getGlobalModel(self):

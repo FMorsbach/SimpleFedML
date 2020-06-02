@@ -8,10 +8,23 @@ import random
 
 url = "http://localhost:5000"
 client_id = uuid.uuid4()
-PARTITIONS = 60
+PARTITIONS = 3
 
 
-def run():
+def getData(trainer_id):
+    mnist = tf.keras.datasets.mnist
+
+    (x_train, y_train), (_, _) = mnist.load_data()
+
+    x_train = [x for x in np.split(x_train, PARTITIONS)][trainer_id]
+    y_train = [y for y in np.split(y_train, PARTITIONS)][trainer_id]
+
+    x_train = x_train / 255.0
+
+    return x_train, y_train
+
+
+def run(trainer_id):
 
     config = None
     weights = None
@@ -37,19 +50,11 @@ def run():
     model = keras.models.model_from_json(json.dumps(config))
     model.set_weights(weights)
 
-    model.compile(optimizer='adam',
+    model.compile(optimizer='sgd',
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
 
-    mnist = tf.keras.datasets.mnist
-
-    (x_train, y_train), (_, _) = mnist.load_data()
-
-    partition = random.randint(0, PARTITIONS)
-    x_train = [x for x in np.split(x_train, PARTITIONS)][partition]
-    y_train = [y for y in np.split(y_train, PARTITIONS)][partition]
-
-    x_train = x_train / 255.0
+    x_train, y_train = getData(trainer_id)
 
     model.fit(x_train, y_train, epochs=1)
 
@@ -71,4 +76,6 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    for i in range(0, PARTITIONS):
+        run(i)
+
